@@ -1,0 +1,10 @@
+qiskit>=2.0
+qiskit-aer>=0.17
+numpy
+pandas
+matplotlib
+fastapi>=0.115
+uvicorn[standard]>=0.30
+
+# Optional IBM fake-backend noise snapshots (no IBM account required)
+qiskit-ibm-runtime>=0.40

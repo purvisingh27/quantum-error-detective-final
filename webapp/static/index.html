@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Quantum Error Detective | Quantum Noise Lab</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand-mark">Q<span>×</span></div>
+    <div class="brand-copy"><strong>QUANTUM</strong><span>ERROR DETECTIVE</span></div>
+    <div class="side-label">WORKSPACE</div>
+    <button class="nav-item active" data-section="lab"><span>◈</span> Experiment lab</button>
+    <button class="nav-item" data-section="saved"><span>▥</span> Saved analysis</button>
+    <div class="sidebar-bottom"><span class="status-dot"></span><div><b>Simulator online</b><small>Qiskit Aer · local backend</small></div></div>
+  </aside>
+  <main class="main-content">
+    <header class="topbar"><div><div class="eyebrow">QUANTUM RELIABILITY TOOLKIT</div><h1>Quantum Noise Lab</h1><p>Run experiments. Detect noise. Evaluate mitigation.</p></div><div class="top-status"><span class="pulse"></span><span id="connectionText">Connecting to backend…</span><span class="sim-badge">SIMULATOR ONLY</span></div></header>
+    <section class="notice"><strong>Experimental environment</strong><span>All results are sampled from Qiskit Aer. They are not measurements from real IBM quantum hardware.</span></section>
+    <section id="labSection">
+      <div class="section-heading"><div><h2>Configure experiment</h2><p>Choose a circuit and noise model, then run a fresh simulation.</p></div><span class="step-pill">01 / CONFIGURE</span></div>
+      <section class="panel preset-panel">
+        <div class="preset-heading"><div><h3>Quick-start experiments</h3><p>Load a useful configuration, then run it or customize it.</p></div><span class="preset-tip">ONE CLICK TO CONFIGURE</span></div>
+        <div class="preset-buttons">
+          <button class="preset-button" data-preset="readout"><strong>Readout check</strong><span>Bell · readout · 0.04</span></button>
+          <button class="preset-button" data-preset="balanced"><strong>Balanced challenge</strong><span>GHZ3 · combined · 0.08</span></button>
+          <button class="preset-button" data-preset="stress"><strong>High-noise stress test</strong><span>Grover2 · combined · 0.16</span></button>
+          <button class="preset-button" data-preset="ideal"><strong>Near-ideal baseline</strong><span>Bell · no added noise · 0.00</span></button>
+        </div>
+      </section>
+      <div class="workspace-grid">
+        <section class="panel controls-panel">
+          <div class="panel-title"><span class="panel-icon">⌘</span><div><h3>Experiment controls</h3><p>Parameters for this run</p></div></div>
+          <label for="circuitSelect">Quantum circuit</label>
+          <select id="circuitSelect"><option value="Bell">Bell · 2 qubits</option><option value="GHZ3">GHZ · 3 qubits</option><option value="GHZ5">GHZ · 5 qubits</option><option value="GHZ8">GHZ · 8 qubits</option><option value="Grover2">Grover search · 2 qubits</option><option value="Custom">Bring your own OpenQASM 2.0</option></select>
+          <div id="circuitDescription" class="help-text">Entangled pair; ideal outcomes are 00 and 11 (50/50).</div>
+          <div id="customQasmPanel" class="custom-qasm-panel hidden"><label for="customQasm">OpenQASM 2.0 circuit</label><textarea id="customQasm" rows="7" spellcheck="false" placeholder="Paste OpenQASM 2.0 source here"></textarea><label for="expectedOutcomes">Expected successful bitstrings</label><input id="expectedOutcomes" type="text" placeholder="00,11"><div class="help-text">Use final measurements only (or omit measurements in the QASM); 1–8 qubits. Enter expected bitstrings separated by commas.</div></div>
+          <label for="deviceProfile">Noise profile</label>
+          <select id="deviceProfile"><option value="generic" selected>Generic configurable Aer noise</option><option value="ibm_fake_manila">IBM FakeManilaV2 snapshot (5 qubits max)</option></select>
+          <div class="help-text">IBM snapshot mode uses stored fake-backend properties through Qiskit Runtime; it is still a simulation, not live hardware.</div>
+          <label for="noiseSelect">Noise scenario</label>
+          <select id="noiseSelect"><option value="readout">Readout noise only</option><option value="gate">Gate noise only</option><option value="combined" selected>Gate + readout noise</option></select>
+          <div class="slider-label"><label for="noiseLevel">Noise level</label><strong id="noiseValue">0.08</strong></div>
+          <input id="noiseLevel" type="range" min="0" max="0.2" step="0.01" value="0.08"><div class="range-scale"><span>0.00 · ideal-ish</span><span>0.20 · high</span></div>
+          <div class="form-row"><div><label for="shotsSelect">Measurement shots</label><select id="shotsSelect"><option value="1024">1,024</option><option value="2048">2,048</option><option value="4096" selected>4,096</option><option value="8192">8,192</option><option value="16384">16,384</option></select></div><div><label for="seedInput">Random seed</label><input id="seedInput" type="number" min="0" value="42"></div></div>
+          <button id="runButton" class="primary-button"><span>▶</span> Run fresh experiment</button>
+          <div id="runStatus" class="run-status">Ready to run. Results will come from the simulator.</div>
+        </section>
+        <section class="panel circuit-panel"><div class="panel-title"><span class="panel-icon">⌁</span><div><h3>Circuit profile</h3><p>Logical and transpiled circuit information</p></div></div><div id="circuitProfile" class="circuit-profile"><div class="empty-state">Run an experiment to load circuit metrics.</div></div><div class="mini-note">Circuit metrics are collected from the same Qiskit circuit definitions used by the simulator.</div></section>
+      </div>
+      <div class="section-heading results-heading"><div><h2>Experiment results</h2><p>Raw measurements compared with the calibrated mitigation estimate.</p></div><span id="runId" class="run-id">No run yet</span></div>
+      <div class="metric-grid">
+        <article class="metric-card"><span>RAW SUCCESS</span><strong id="rawMetric">—</strong><small id="rawCI">95% Wilson confidence interval</small></article>
+        <article class="metric-card accent"><span>MITIGATED ESTIMATE</span><strong id="mitMetric">—</strong><small id="mitCI">Bootstrap 95% confidence interval</small></article>
+        <article class="metric-card"><span>CHANGE</span><strong id="changeMetric">—</strong><small>Percentage-point change</small></article>
+        <article class="metric-card"><span>RAW TVD</span><strong id="tvdMetric">—</strong><small id="mitTvd">Mitigated TVD: —</small></article>
+      </div>
+      <div class="analysis-grid">
+        <section class="panel chart-panel"><div class="panel-title"><div><h3>Measurement distribution</h3><p>Observed, mitigated and ideal probabilities by bitstring</p></div><div class="legend"><span><i class="blue"></i>Raw</span><span><i class="orange"></i>Mitigated</span><span><i class="green"></i>Ideal</span></div></div><div id="histogramChart" class="chart-area"><div class="empty-state">Run an experiment to view the histogram.</div></div></section>
+        <section class="panel recommendation-panel"><div class="panel-title"><div><h3>Detective's assessment</h3><p>Generated from this run's numerical results</p></div></div><div id="recommendation" class="recommendation empty-state">Run an experiment to receive a result-based recommendation.</div><div class="recommendation-foot">This is a heuristic interpretation, not proof of statistical significance. Compare confidence intervals and repeat runs.</div></section>
+      </div>
+      <section class="panel arena-panel">
+        <div class="panel-title"><div><h3>Mitigation Arena</h3><p>Compare four strategies on fresh Qiskit Aer samples.</p></div><button id="arenaButton" class="primary-button small">Compare mitigation methods</button></div>
+        <div class="arena-subtitle">Raw · Readout mitigation · Zero-noise extrapolation · Readout + ZNE</div>
+        <div id="arenaResults" class="arena-results"><div class="empty-state">Run an experiment, then compare the mitigation strategies here.</div></div>
+        <div id="arenaNote" class="mini-note">ZNE currently uses linear extrapolation across digital gate-noise scales 1×, 2× and 3×. This is an educational approximation, not pulse-level gate folding.</div>
+      </section>
+      <div class="analysis-grid lower-grid">
+        <section class="panel chart-panel"><div class="panel-title"><div><h3>Noise sensitivity lab</h3><p>Run a fresh sweep over the project's noise levels</p></div><button id="sweepButton" class="secondary-button">Run sweep</button></div><div id="sweepChart" class="chart-area"><div class="empty-state">Choose a circuit above, then run a noise sweep.</div></div><div id="sweepNote" class="help-text"></div></section>
+        <section class="panel chart-panel"><div class="panel-title"><div><h3>Readout calibration matrix</h3><p>Rows = prepared state · columns = measured state</p></div></div><div id="calibrationHeatmap" class="heatmap-area"><div class="empty-state">Run an experiment to calculate the calibration matrix.</div></div><div class="mini-note">Calibration is sampled on the same simulated noise model. Matrix inversion may amplify sampling noise.</div></section>
+      </div>
+      <section class="panel history-panel">
+        <div class="history-heading"><div class="panel-title"><span class="panel-icon">↗</span><div><h3>Run history & comparison</h3><p>Compare recent runs from this browser session. Each entry is a real response from the simulator.</p></div></div><div class="history-actions"><button id="historyCsvButton" class="secondary-button" disabled>Export history CSV</button><button id="clearHistoryButton" class="secondary-button" disabled>Clear history</button></div></div>
+        <div id="historyChart" class="chart-area"><div class="empty-state">Run two or more experiments to compare their raw and mitigated success.</div></div>
+        <div id="historyTable" class="table-wrap"><div class="empty-state">Your recent experiments will appear here.</div></div>
+      </section>
+      <section class="panel export-panel"><div class="export-copy"><div class="panel-title"><span class="panel-icon">⇩</span><div><h3>Export this experiment</h3><p>Save the result so your analysis is reproducible and ready for review.</p></div></div></div><div class="export-actions"><button id="csvButton" class="secondary-button" disabled>Download CSV</button><button id="reportButton" class="primary-button small" disabled>Download report (.md)</button></div></section>
+      <section class="limitations"><strong>Read the results responsibly</strong><p>Readout mitigation estimates measurement bias; it does not undo gate errors. Noise diagnosis is heuristic. ZNE extrapolation can be unstable. Raw confidence intervals use the Wilson method. The mitigated interval bootstraps observed counts but does not include calibration-matrix uncertainty. Results can vary with shots and seed.</p></section>
+    </section>
+    <section id="savedSection" class="hidden"><div class="section-heading"><div><h2>Saved analysis</h2><p>Reference experiment outputs already present in your project's outputs folder.</p></div><span class="step-pill">02 / REVIEW</span></div><div id="savedContent" class="panel saved-content"><div class="empty-state">Loading saved project outputs…</div></div><div class="saved-links"><a href="/outputs/mitigation_comparison.png" target="_blank">Open mitigation comparison graph ↗</a><a href="/outputs/noise_vs_success.png" target="_blank">Open noise sweep graph ↗</a><a href="/outputs/noise_component_comparison.png" target="_blank">Open noise component graph ↗</a></div></section>
+    <footer><span>QUANTUM ERROR DETECTIVE</span><span>Educational prototype · Qiskit + Aer</span></footer>
+  </main>
+</div>
+<script src="/static/app.js"></script>
+</body></html>
